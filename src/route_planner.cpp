@@ -10,7 +10,8 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 
     // TODO 2: Use the m_Model.FindClosestNode method to find the closest nodes to the starting and ending coordinates.
     // Store the nodes you find in the RoutePlanner's start_node and end_node attributes.
-
+    start_node = &m_Model.FindClosestNode(start_x, start_y);
+    end_node = &m_Model.FindClosestNode(end_x, end_y);
 }
 
 
@@ -20,19 +21,35 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 // - Node objects have a distance method to determine the distance to another node.
 
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-
+    // calculate straigt distance to end node to use it as th h value
+    return node->distance(*end_node);
 }
 
 
 // TODO 4: Complete the AddNeighbors method to expand the current node by adding all unvisited neighbors to the open list.
 // Tips:
 // - Use the FindNeighbors() method of the current_node to populate current_node.neighbors vector with all the neighbors.
-// - For each node in current_node.neighbors, set the parent, the h_value, the g_value. 
+// - For each node in current_node.neighbors, set the parent, the h_value, the g_value.
 // - Use CalculateHValue below to implement the h-Value calculation.
 // - For each node in current_node.neighbors, add the neighbor to open_list and set the node's visited attribute to true.
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
+    // use FindNeighbors method to get all the neighbors
+    current_node->FindNeighbors();
 
+    // loop through all the neighbors of current node
+    for (RouteModel::Node* neighbor : current_node->neighbors) {
+      // set parent
+      neighbor->parent = current_node;
+      // calculate and set h value
+      neighbor->h_value = CalculateHValue(neighbor);
+      // calculate and set g value
+      neighbor->g_value = current_node->g_value + current_node->distance(*neighbor);
+      // add neighbor to open_list
+      open_list.push_back(neighbor);
+      // set visited to true
+      neighbor->visited = true;
+    }
 }
 
 
@@ -50,7 +67,7 @@ RouteModel::Node *RoutePlanner::NextNode() {
 
 // TODO 6: Complete the ConstructFinalPath method to return the final path found from your A* search.
 // Tips:
-// - This method should take the current (final) node as an argument and iteratively follow the 
+// - This method should take the current (final) node as an argument and iteratively follow the
 //   chain of parents of nodes until the starting node is found.
 // - For each node in the chain, add the distance from the node to its parent to the distance variable.
 // - The returned vector should be in the correct order: the start node should be the first element
