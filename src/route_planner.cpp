@@ -62,9 +62,8 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 
 RouteModel::Node *RoutePlanner::NextNode() {
     // sort the vector according to the sum of the h value and g value
-    std::sort(open_list.begin(), open_list.end(),
-      [] (const RouteModel::Node* &x, RouteModel::Node* auto &y){
-      return x->h_value + x->g_value < y->h_value + y->g_value;
+    std::sort(open_list.begin(), open_list.end(), [](const auto &x, const auto &y){
+      return x->h_value + x->g_value > y->h_value + y->g_value;
     });
     // capture the vectors last value
     RouteModel::Node* next_node = open_list.back();
@@ -137,9 +136,8 @@ void RoutePlanner::AStarSearch() {
             m_Model.path = ConstructFinalPath(current_node);
             // end search
             return;
-      }
-      // add neighbors of current node
-      AddNeighbors(current_node);
+        }
+        // add neighbors of current node
+        AddNeighbors(current_node);
     }
-
 }
