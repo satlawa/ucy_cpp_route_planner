@@ -39,16 +39,16 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 
     // loop through all the neighbors of current node
     for (RouteModel::Node* neighbor : current_node->neighbors) {
-      // set parent
-      neighbor->parent = current_node;
-      // calculate and set h value
-      neighbor->h_value = CalculateHValue(neighbor);
-      // calculate and set g value
-      neighbor->g_value = current_node->g_value + current_node->distance(*neighbor);
-      // add neighbor to open_list
-      open_list.push_back(neighbor);
-      // set visited to true
-      neighbor->visited = true;
+        // set parent
+        neighbor->parent = current_node;
+        // calculate and set h value
+        neighbor->h_value = CalculateHValue(neighbor);
+        // calculate and set g value
+        neighbor->g_value = current_node->g_value + current_node->distance(*neighbor);
+        // add neighbor to open_list
+        open_list.push_back(neighbor);
+        // set visited to true
+        neighbor->visited = true;
     }
 }
 
@@ -61,6 +61,16 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Return the pointer.
 
 RouteModel::Node *RoutePlanner::NextNode() {
+    // sort the vector according to the sum of the h value and g value
+    std::sort(open_list.begin(), open_list.end(),
+      [] (const RouteModel::Node* &x, RouteModel::Node* auto &y){
+      return x->h_value + x->g_value < y->h_value + y->g_value;
+    });
+    // capture the vectors last value
+    RouteModel::Node* next_node = open_list.back();
+    // delete the vectors last value
+    open_list.pop_back();
+    return next_node;
 
 }
 
